@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import {
 	inputSignUpForm,
 	TInputSignUpForm,
-} from '../validations/signun.validation'
+} from '../validations/signup.validation'
 
 export const useSignUpHook = () => {
 	const navigate = useNavigate()
