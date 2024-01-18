@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 import {
 	inputSignInForm,
@@ -15,9 +16,14 @@ export const useSignInHook = () => {
 	})
 
 	const handleSignIn = async (payload: TInputSignInForm) => {
-		console.log(payload)
+		try {
+			console.log(payload)
 
-		await new Promise((resolve) => setTimeout(resolve, 2000))
+			toast.success('Enviamos um link de autenticação para seu e-mail.')
+			await new Promise((resolve) => setTimeout(resolve, 2000))
+		} catch (error) {
+			toast.success('Credenciais inválidas.')
+		}
 	}
 
 	return {
