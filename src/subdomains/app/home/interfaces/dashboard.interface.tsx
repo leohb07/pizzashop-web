@@ -2,6 +2,7 @@ import { DayOrdersAmountCardComponent } from '../components/day-orders-amount-ca
 import { MonthCanceledOrdersAmountCardComponent } from '../components/month-canceled-orders-amount-card.component'
 import { MonthOrdersAmountCardComponent } from '../components/month-orders-amount-card.component'
 import { MonthRevenueCardComponent } from '../components/month-revenue-card.component'
+import { PopularProductChartComponent } from '../components/popular-products-chart.component'
 import { RevenueChartComponent } from '../components/revenue-chart.component'
 
 export function DashboardInterface() {
@@ -18,6 +19,7 @@ export function DashboardInterface() {
 
 			<div className="grid grid-cols-9 gap-4">
 				<RevenueChartComponent />
+				<PopularProductChartComponent />
 			</div>
 		</div>
 	)
