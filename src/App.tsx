@@ -6,7 +6,7 @@ import { RouterProvider } from 'react-router-dom'
 import { Toaster } from 'sonner'
 
 import { queryClient } from './shared/modules/infra/query-client'
-import { routes } from './shared/modules/infra/routes'
+import { routes } from './shared/modules/routes/routes'
 import { ThemeProvider } from './shared/modules/themes/theme-provider'
 
 export function App() {
