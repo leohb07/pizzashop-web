@@ -1,6 +1,6 @@
 import { api } from '../infra/axios'
 
-type TGetManagedRestaurantService = {
+export type TGetManagedRestaurantService = {
 	id: string
 	name: string
 	createdAt: Date | null

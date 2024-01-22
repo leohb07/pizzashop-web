@@ -1,7 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
-import { getManagedRestaurantService } from '@/shared/modules/services/get-managed-restaurant.service'
+import {
+	getManagedRestaurantService,
+	TGetManagedRestaurantService,
+} from '@/shared/modules/services/get-managed-restaurant.service'
+import { updateProfileService } from '@/shared/modules/services/update-profile.service'
 import {
 	storeProfileDialogValidation,
 	TStoreProfileDialogValidation,
@@ -9,6 +14,7 @@ import {
 
 import { Button } from '../../ui/button'
 import {
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -20,18 +26,77 @@ import { Label } from '../../ui/label'
 import { Textarea } from '../../ui/textarea'
 
 export function StoreProfileDialogComponent() {
+	const queryClient = useQueryClient()
+
 	const { data: managedRestaurant } = useQuery({
 		queryKey: ['managed-restaurant'],
 		queryFn: getManagedRestaurantService,
+		staleTime: Infinity,
 	})
 
-	const { register } = useForm<TStoreProfileDialogValidation>({
+	const {
+		register,
+		handleSubmit,
+		formState: { isSubmitting },
+	} = useForm<TStoreProfileDialogValidation>({
 		resolver: storeProfileDialogValidation,
 		values: {
 			name: managedRestaurant?.name ?? '',
 			description: managedRestaurant?.description ?? '',
 		},
 	})
+
+	const updateManagedRestaurantCache = (
+		payload: TStoreProfileDialogValidation,
+	) => {
+		const { name, description } = payload
+
+		const cached = queryClient.getQueryData<TGetManagedRestaurantService>([
+			'managed-restaurant',
+		])
+
+		if (cached) {
+			queryClient.setQueryData<TGetManagedRestaurantService>(
+				['managed-restaurant'],
+				{
+					...cached,
+					name,
+					description,
+				},
+			)
+		}
+
+		return { cached }
+	}
+
+	const { mutateAsync: updateProfileMutation } = useMutation({
+		mutationFn: updateProfileService,
+		onMutate({ description, name }) {
+			const { cached } = updateManagedRestaurantCache({ name, description })
+
+			return { previousProfile: cached }
+		},
+		onError(_, __, context) {
+			if (context?.previousProfile) {
+				updateManagedRestaurantCache(context.previousProfile)
+			}
+		},
+	})
+
+	const handleUpdateProfile = async (data: TStoreProfileDialogValidation) => {
+		try {
+			const { description, name } = data
+
+			await updateProfileMutation({
+				description,
+				name,
+			})
+
+			toast.success('Perfil atualizado com sucesso!')
+		} catch {
+			toast.error('Falha ao atualizar pefil, tente novamente!')
+		}
+	}
 
 	return (
 		<DialogContent>
@@ -42,7 +107,7 @@ export function StoreProfileDialogComponent() {
 				</DialogDescription>
 			</DialogHeader>
 
-			<form>
+			<form onSubmit={handleSubmit(handleUpdateProfile)}>
 				<div className="space-y-4 py-4">
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label className="text-right" htmlFor="name">
@@ -64,10 +129,13 @@ export function StoreProfileDialogComponent() {
 				</div>
 
 				<DialogFooter>
-					<Button variant="ghost" type="button">
-						Cancelar
-					</Button>
-					<Button type="submit" variant="success">
+					<DialogClose asChild>
+						<Button variant="ghost" type="button">
+							Cancelar
+						</Button>
+					</DialogClose>
+
+					<Button type="submit" variant="success" disabled={isSubmitting}>
 						Salvar
 					</Button>
 				</DialogFooter>
