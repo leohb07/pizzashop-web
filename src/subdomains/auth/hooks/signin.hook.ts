@@ -33,7 +33,7 @@ export const useSignInHook = () => {
 
 			toast.success('Enviamos um link de autenticação para seu e-mail.')
 		} catch (error) {
-			toast.success('Credenciais inválidas.')
+			toast.error('Credenciais inválidas.')
 		}
 	}
 
