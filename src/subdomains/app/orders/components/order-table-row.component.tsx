@@ -1,31 +1,25 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowRight, Search, X } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from '@/shared/modules/components/ui/button'
 import { Dialog, DialogTrigger } from '@/shared/modules/components/ui/dialog'
 import { TableCell, TableRow } from '@/shared/modules/components/ui/table'
 
+import { IOrderTableRowComponent } from '../@types/order-table-row.type'
 import { OrderDetailsComponent } from './order-details.component'
 import { OrderStatusComponent } from './order-status.component'
 
-type TOrderTableRowComponent = {
-	order: {
-		orderId: string
-		createdAt: string
-		status: 'pending' | 'canceled' | 'processing' | 'delivering' | 'delivered'
-		customerName: string
-		total: number
-	}
-}
+export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
+	const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
-export function OrderTableRowComponent({ order }: TOrderTableRowComponent) {
 	const { createdAt, customerName, orderId, status, total } = order
 
 	return (
 		<TableRow>
 			<TableCell>
-				<Dialog>
+				<Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
 					<DialogTrigger asChild>
 						<Button variant="outline" size="xs">
 							<Search className="h-3 w-3" />
@@ -33,7 +27,10 @@ export function OrderTableRowComponent({ order }: TOrderTableRowComponent) {
 						</Button>
 					</DialogTrigger>
 
-					<OrderDetailsComponent />
+					<OrderDetailsComponent
+						orderId={orderId}
+						isOpenDialog={isDetailsOpen}
+					/>
 				</Dialog>
 			</TableCell>
 
@@ -53,7 +50,7 @@ export function OrderTableRowComponent({ order }: TOrderTableRowComponent) {
 			<TableCell className="font-medium">{customerName}</TableCell>
 
 			<TableCell className="font-medium">
-				{total.toLocaleString('pt-BR', {
+				{(total / 100).toLocaleString('pt-BR', {
 					style: 'currency',
 					currency: 'BRL',
 				})}
