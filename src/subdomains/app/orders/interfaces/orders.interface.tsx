@@ -14,7 +14,7 @@ import { useOrdersHook } from '../hooks/orders.hook'
 type TOrdersInterface = ReturnType<typeof useOrdersHook>
 
 export function OrdersInterface(props: TOrdersInterface) {
-	const { resultOrders } = props
+	const { resultOrders, handlePaginate } = props
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -47,7 +47,14 @@ export function OrdersInterface(props: TOrdersInterface) {
 					</Table>
 				</div>
 
-				<PaginationComponent pageIndex={0} totalCount={105} perPage={10} />
+				{resultOrders && (
+					<PaginationComponent
+						onPageChange={handlePaginate}
+						pageIndex={resultOrders.meta.pageIndex}
+						totalCount={resultOrders.meta.totalCount}
+						perPage={resultOrders.meta.perPage}
+					/>
+				)}
 			</div>
 		</div>
 	)

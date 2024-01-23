@@ -1,5 +1,12 @@
 import { api } from '@/shared/modules/infra/axios'
 
+export interface IGetOrdersQuery {
+	pageIndex?: number
+	orderId?: string | null
+	customerName?: string | null
+	status?: string | null
+}
+
 export type TGetOrdersService = {
 	orders: {
 		orderId: string
@@ -15,10 +22,15 @@ export type TGetOrdersService = {
 	}
 }
 
-export const getOrdersService = async () => {
+export const getOrdersService = async (payload: IGetOrdersQuery) => {
+	const { customerName, orderId, pageIndex, status } = payload
+
 	const { data } = await api.get<TGetOrdersService>('/orders', {
 		params: {
-			pageIndex: 0,
+			pageIndex,
+			customerName,
+			orderId,
+			status,
 		},
 	})
 
