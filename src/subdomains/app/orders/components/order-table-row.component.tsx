@@ -1,82 +1,28 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowRight, Search, X } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/shared/modules/components/ui/button'
 import { Dialog, DialogTrigger } from '@/shared/modules/components/ui/dialog'
 import { TableCell, TableRow } from '@/shared/modules/components/ui/table'
 
 import { IOrderTableRowComponent } from '../@types/order-table-row.type'
-import { approveOrderService } from '../services/components/approve-order.service'
-import { cancelOrderService } from '../services/components/cancel-order.service'
-import { deliverOrderService } from '../services/components/deliver-order.service'
-import { dispatchOrderService } from '../services/components/dispatch-order.service'
-import { TGetOrdersService } from '../services/get-orders.service'
+import { useOrderTableRowHook } from '../hooks/components/order-table-row.hook'
 import { OrderDetailsComponent } from './order-details.component'
-import { OrderStatusComponent, TOrderStatus } from './order-status.component'
+import { OrderStatusComponent } from './order-status.component'
 
-export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
-	const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-
-	const queryClient = useQueryClient()
-
-	const { createdAt, customerName, orderId, status, total } = order
-
-	const updateOrderStatusOnCache = (orderId: string, status: TOrderStatus) => {
-		const ordersListCache = queryClient.getQueriesData<TGetOrdersService>({
-			queryKey: ['orders'],
-		})
-
-		ordersListCache.forEach(([cacheKey, cacheData]) => {
-			if (!cacheData) return
-
-			queryClient.setQueryData<TGetOrdersService>(cacheKey, {
-				...cacheData,
-				orders: cacheData.orders.map((order) => {
-					return order.orderId === orderId ? { ...order, status } : order
-				}),
-			})
-		})
-	}
-
-	const { mutateAsync: cancelOrderFn, isPending: isCancelingOrder } =
-		useMutation({
-			mutationFn: cancelOrderService,
-			async onSuccess() {
-				updateOrderStatusOnCache(orderId, 'canceled')
-				toast.success('Pedido cancelado com sucesso!')
-			},
-		})
-
-	const { mutateAsync: approveOrderFn, isPending: isApprovingOrder } =
-		useMutation({
-			mutationFn: approveOrderService,
-			async onSuccess() {
-				updateOrderStatusOnCache(orderId, 'processing')
-				toast.warning('Pedido em preparo!')
-			},
-		})
-
-	const { mutateAsync: dispatchOrderFn, isPending: isDispatchingOrder } =
-		useMutation({
-			mutationFn: dispatchOrderService,
-			async onSuccess() {
-				updateOrderStatusOnCache(orderId, 'delivering')
-				toast.info('Pedido a caminho!')
-			},
-		})
-
-	const { mutateAsync: deliverOrderFn, isPending: isDeliveringOrder } =
-		useMutation({
-			mutationFn: deliverOrderService,
-			async onSuccess() {
-				updateOrderStatusOnCache(orderId, 'delivered')
-				toast.success('Pedido entregue com sucesso!')
-			},
-		})
+export function OrderTableRowComponent(props: IOrderTableRowComponent) {
+	const {
+		isPending,
+		mutateFn,
+		createdAt,
+		customerName,
+		isDetailsOpen,
+		orderId,
+		setIsDetailsOpen,
+		status,
+		total,
+	} = useOrderTableRowHook(props)
 
 	return (
 		<TableRow>
@@ -121,8 +67,8 @@ export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
 			<TableCell>
 				{status === 'pending' && (
 					<Button
-						onClick={() => approveOrderFn({ orderId })}
-						disabled={isApprovingOrder}
+						onClick={() => mutateFn.approveOrderFn({ orderId })}
+						disabled={isPending.isApprovingOrder}
 						variant="outline"
 						size="xs"
 					>
@@ -133,8 +79,8 @@ export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
 
 				{status === 'processing' && (
 					<Button
-						onClick={() => dispatchOrderFn({ orderId })}
-						disabled={isDispatchingOrder}
+						onClick={() => mutateFn.dispatchOrderFn({ orderId })}
+						disabled={isPending.isDispatchingOrder}
 						variant="outline"
 						size="xs"
 					>
@@ -145,8 +91,8 @@ export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
 
 				{status === 'delivering' && (
 					<Button
-						onClick={() => deliverOrderFn({ orderId })}
-						disabled={isDeliveringOrder}
+						onClick={() => mutateFn.deliverOrderFn({ orderId })}
+						disabled={isPending.isDeliveringOrder}
 						variant="outline"
 						size="xs"
 					>
@@ -159,9 +105,10 @@ export function OrderTableRowComponent({ order }: IOrderTableRowComponent) {
 			<TableCell>
 				<Button
 					disabled={
-						!['pending', 'processing'].includes(status) || isCancelingOrder
+						!['pending', 'processing'].includes(status) ||
+						isPending.isCancelingOrder
 					}
-					onClick={() => cancelOrderFn({ orderId })}
+					onClick={() => mutateFn.cancelOrderFn({ orderId })}
 					variant="ghost"
 					size="xs"
 				>
