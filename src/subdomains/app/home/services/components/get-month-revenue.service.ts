@@ -1,7 +1,7 @@
 import { api } from '@/shared/modules/infra/axios'
 
 export interface IGetMonthRevenueService {
-	amount: number
+	receipt: number
 	diffFromLastMonth: number
 }
 
