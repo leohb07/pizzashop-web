@@ -19,6 +19,7 @@ import {
 
 import { IOrderDetailsComponent } from '../@types/order-details.type'
 import { useOrderDetailsHook } from '../hooks/components/order-details.hook'
+import { OrderDetailsSkeletonComponent } from './order-details-skeleton.component'
 import { OrderStatusComponent } from './order-status.component'
 
 export function OrderDetailsComponent(props: IOrderDetailsComponent) {
@@ -33,7 +34,7 @@ export function OrderDetailsComponent(props: IOrderDetailsComponent) {
 				<DialogDescription>Detalhes do pedido</DialogDescription>
 			</DialogHeader>
 
-			{order && (
+			{order ? (
 				<div className="space-y-6">
 					<Table>
 						<TableBody>
@@ -128,6 +129,8 @@ export function OrderDetailsComponent(props: IOrderDetailsComponent) {
 						</TableFooter>
 					</Table>
 				</div>
+			) : (
+				<OrderDetailsSkeletonComponent />
 			)}
 		</DialogContent>
 	)

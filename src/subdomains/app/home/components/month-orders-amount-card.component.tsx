@@ -9,6 +9,7 @@ import {
 } from '@/shared/modules/components/ui/card'
 
 import { getMonthOrdersAmountService } from '../services/components/get-month-orders-amount.service'
+import { MetricCardSkeleton } from './metric-card-skeleton.component'
 
 export function MonthOrdersAmountCardComponent() {
 	const { data: monthOrdersAmount } = useQuery({
@@ -24,7 +25,7 @@ export function MonthOrdersAmountCardComponent() {
 			</CardHeader>
 
 			<CardContent className="space-y-1">
-				{monthOrdersAmount && (
+				{monthOrdersAmount ? (
 					<>
 						<span className="text-2xl font-bold tracking-tight">
 							{monthOrdersAmount.amount.toLocaleString('pt-BR')}
@@ -47,6 +48,8 @@ export function MonthOrdersAmountCardComponent() {
 							)}
 						</p>
 					</>
+				) : (
+					<MetricCardSkeleton />
 				)}
 			</CardContent>
 		</Card>

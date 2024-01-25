@@ -9,12 +9,13 @@ import {
 
 import { OrderTableFiltersComponent } from '../components/order-table-filters.component'
 import { OrderTableRowComponent } from '../components/order-table-row.component'
+import { OrderTableSkeletonComponent } from '../components/order-table-skeleton.component'
 import { useOrdersHook } from '../hooks/orders.hook'
 
 type TOrdersInterface = ReturnType<typeof useOrdersHook>
 
 export function OrdersInterface(props: TOrdersInterface) {
-	const { resultOrders, handlePaginate } = props
+	const { resultOrders, handlePaginate, isLoadingOrders } = props
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -39,6 +40,8 @@ export function OrdersInterface(props: TOrdersInterface) {
 						</TableHeader>
 
 						<TableBody>
+							{isLoadingOrders && <OrderTableSkeletonComponent />}
+
 							{resultOrders &&
 								resultOrders.orders?.map((order) => (
 									<OrderTableRowComponent key={order.orderId} order={order} />
@@ -46,6 +49,8 @@ export function OrdersInterface(props: TOrdersInterface) {
 						</TableBody>
 					</Table>
 				</div>
+
+				{}
 
 				{resultOrders && (
 					<PaginationComponent

@@ -16,7 +16,7 @@ export const useOrdersHook = () => {
 		.transform((page) => page - 1)
 		.parse(searchParams.get('page') ?? '1')
 
-	const { data: resultOrders } = useQuery({
+	const { data: resultOrders, isLoading: isLoadingOrders } = useQuery({
 		queryKey: ['orders', pageIndex, orderId, customerName, status],
 		queryFn: () =>
 			getOrdersService({
@@ -37,6 +37,7 @@ export const useOrdersHook = () => {
 
 	return {
 		resultOrders,
+		isLoadingOrders,
 		handlePaginate,
 	}
 }
