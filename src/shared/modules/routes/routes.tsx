@@ -7,13 +7,14 @@ import { SignUpContainer } from '@/subdomains/auth/containers/signup.container'
 
 import { AppLayout } from '../_layouts/app.layout'
 import { AuthLayout } from '../_layouts/auth.layout'
+import { ErrorLayout } from '../_layouts/error.layout'
 import { NotFound } from '../_layouts/not-found.layout'
 
 export const routes = createBrowserRouter([
 	{
 		path: '/',
 		element: <AppLayout />,
-		errorElement: <NotFound />,
+		errorElement: <ErrorLayout />,
 		children: [
 			{ path: '/', element: <DashboardContainer /> },
 			{ path: '/orders', element: <OrdersContainer /> },
@@ -27,5 +28,9 @@ export const routes = createBrowserRouter([
 			{ path: '/sign-in', element: <SignInContainer /> },
 			{ path: '/sign-up', element: <SignUpContainer /> },
 		],
+	},
+	{
+		path: '*',
+		element: <NotFound />,
 	},
 ])
